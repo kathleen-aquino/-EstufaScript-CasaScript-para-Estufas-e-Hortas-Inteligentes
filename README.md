@@ -187,6 +187,9 @@ Otimizações aplicadas: `NAO NAO (...)` → `(...)` na regra 3; `nivel_reservat
   [SENAO]
     (vazio)
 ```
+Evidências 
+<img width="845" height="371" alt="image" src="https://github.com/user-attachments/assets/b0f1e750-3b3a-44cb-8f87-051c6295f2b7" />
+
 
 
 
