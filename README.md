@@ -1,0 +1,1 @@
+# -EstufaScript-CasaScript-para-Estufas-e-Hortas-Inteligentes
