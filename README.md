@@ -1,4 +1,4 @@
-# -EstufaScript-CasaScript-para-Estufas-e-Hortas-Inteligentes
+# EstufaScript CasaScript para Estufas e Hortas Inteligentes
 
 Victor Borges Quintella de Almeida - 2544963
 Kathleen Aquino Lima - 2364196
