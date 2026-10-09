@@ -37,7 +37,7 @@ Produtores de hortaliças em estufas e fazendas verticais ainda controlam boa pa
 ```
 EstufaScript/
 ├── README.md                      # Este documento
-└── Pratica2_SmartEstufa.ipynb     # Compilador completo + testes + simulação
+└── Pratica2_SmartEstufa.py     # Compilador completo + testes + simulação
 ```
 
 ### Organização do notebook
@@ -73,7 +73,7 @@ código-fonte ─► Léxico ─► Sintático ─► Semântico ─► Otimiza�
 
 ## 3. Como executar
 
-1. Abra `Pratica2_SmartEstufa.ipynb` no Jupyter Notebook, JupyterLab, VS Code ou Google Colab.
+1. Abra `Pratica2_SmartEstufa.py` no Jupyter Notebook, JupyterLab, VS Code ou Google Colab.
 2. Execute **todas as células em ordem** (*Kernel → Restart & Run All*), pois cada fase depende das definições das células anteriores.
 3. Para testar um programa próprio, altere o código-fonte EstufaScript na célula de compilação do exemplo e execute novamente as células seguintes.
 
@@ -305,6 +305,8 @@ Funcionalidades além do mínimo pedido nos requisitos:
 * **Bateria de testes automatizada** que confere não só se houve erro, mas a **fase** e um trecho da **mensagem** (Célula 16).
 
 ---
+
+## 8. Evidências
 
 <img width="845" height="371" alt="image" src="https://github.com/user-attachments/assets/b0f1e750-3b3a-44cb-8f87-051c6295f2b7" />
 <img width="804" height="235" alt="image" src="https://github.com/user-attachments/assets/0549cfc8-c887-4112-ab17-e6eb844c3536" />
