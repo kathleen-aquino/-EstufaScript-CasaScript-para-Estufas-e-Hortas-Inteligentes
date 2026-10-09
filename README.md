@@ -1,134 +1,189 @@
-🌱 EstufaScript — CasaScript para Estufas e Hortas Inteligentes
+# 🌱 EstufaScript — CasaScript para Estufas e Hortas Inteligentes
 
-Prática 2 — Compiladores · Notebook: Pratica2_SmartEstufa.ipynb
+**Prática 2 — Compiladores** · Notebook: [`Pratica2_SmartEstufa.ipynb`](Pratica2_SmartEstufa.ipynb)
 
-Integrante	RA
-Victor Borges Quintella de Almeida	2544963
-Kathleen Aquino Lima	2364196
-João Victor Brandão	2359197
-Lucas Costa	2361186
-Sumário
-Cenário escolhido
-Estrutura do projeto
-Como executar
-Tabela de símbolos
-Requisitos e fases do compilador (RF1 a RF6)
-Exemplo de programa e bytecode gerado
-Bônus implementados
-Evidências
-1. Cenário escolhido: Estufa / horta inteligente
+| Integrante | RA |
+|---|---|
+| Victor Borges Quintella de Almeida | 2544963 |
+| Kathleen Aquino Lima | 2364196 |
+| João Victor Brandão | 2359197 |
+| Lucas Costa | 2361186 |
 
-Mercado: Agtech, agricultura de precisão e fazendas verticais.
+---
 
-Produtores de hortaliças em estufas e fazendas verticais ainda controlam boa parte da irrigação, da iluminação complementar e da ventilação de forma manual ou com temporizadores fixos. Isso desperdiça água e energia (irrigar quando está chovendo, deixar a lâmpada de cultivo ligada fora do fotoperíodo) e expõe a cultura a estresse térmico quando ninguém está presente para abrir a janela de teto. A startup quer que o próprio agrônomo escreva as regras da estufa numa linguagem simples, sem programar em Python ou C. A EstufaScript adapta a CasaScript para esse público: regras QUANDO … ENTAO … SENAO … FIM sobre sensores de solo, luz, clima, reservatório e relógio, compiladas para um bytecode executado por uma central embarcada que reage às mudanças de estado (bordas de subida e de descida).
+## Sumário
 
-2. Estrutura do projeto
+1. [Cenário escolhido](#1-cenário-escolhido-estufa--horta-inteligente)
+2. [Estrutura do projeto](#2-estrutura-do-projeto)
+3. [Como executar](#3-como-executar)
+4. [Tabela de símbolos](#4-tabela-de-símbolos)
+5. [Requisitos e fases do compilador (RF1 a RF6)](#5-requisitos-e-fases-do-compilador)
+6. [Exemplo de programa e bytecode gerado](#6-exemplo-de-programa-e-bytecode-gerado)
+7. [Bônus implementados](#7-bônus-implementados)
+8. [Evidências](#8-evidências)
+
+---
+
+## 1. Cenário escolhido: Estufa / horta inteligente
+
+**Mercado:** Agtech, agricultura de precisão e fazendas verticais.
+
+Produtores de hortaliças em estufas e fazendas verticais ainda controlam boa parte da irrigação, da iluminação complementar e da ventilação de forma manual ou com temporizadores fixos. Isso desperdiça água e energia (irrigar quando está chovendo, deixar a lâmpada de cultivo ligada fora do fotoperíodo) e expõe a cultura a estresse térmico quando ninguém está presente para abrir a janela de teto. A startup quer que o próprio agrônomo escreva as regras da estufa numa linguagem simples, sem programar em Python ou C. A **EstufaScript** adapta a CasaScript para esse público: regras `QUANDO … ENTAO … SENAO … FIM` sobre sensores de solo, luz, clima, reservatório e relógio, compiladas para um bytecode executado por uma central embarcada que reage às mudanças de estado (bordas de subida e de descida).
+
+---
+
+## 2. Estrutura do projeto
+
+```
 EstufaScript/
 ├── README.md                      # Este documento
 └── Pratica2_SmartEstufa.ipynb     # Compilador completo + testes + simulação
-Organização do notebook
+```
+
+### Organização do notebook
 
 O compilador segue o pipeline clássico, uma fase por célula:
 
+```
 código-fonte ─► Léxico ─► Sintático ─► Semântico ─► Otimização ─► Geração de código ─► Runtime (VM + Central)
                 (C3)      (C5–C7)       (C8)          (C9)          (C10)                 (C11)
-Célula	Conteúdo	Fase / papel
-1	Importações e configuração	Infraestrutura
-2	Tabela de símbolos da estufa (sensores, dispositivos, ações, faixas)	Semântica (dados)
-3	Lexer: tokens, padrão HORARIO, horario_para_minutos, ErroLexico	Léxica
-4	Demonstração do token de horário e dos erros léxicos	Demonstração
-5	Nós da AST (Regra com campo senao)	Sintática
-6	Parser descendente recursivo (bloco(), ErroSintatico)	Sintática
-7	Desenho da AST (SVG e texto, nó SENAO em laranja)	Sintática (visualização)
-8	Analisador semântico (verificar_bloco, avisos)	Semântica
-9	Otimizador (dupla negação, identidades aritméticas)	Otimização
-10	Gerador de bytecode (condicao / entao / senao)	Geração de código
-11	Estufa, MaquinaVirtual e Central (bordas de subida/descida)	Execução
-12	Compilação do programa de exemplo	Pipeline completo
-13	Relatório de otimizações e bytecode do exemplo	Demonstração
-14	Demonstração do SENAO na borda de descida	Demonstração
-15	Demonstrações de erros/avisos semânticos e otimizações	Demonstração
-16	Bateria de 18 testes automatizados	Validação
-17	Simulação de um dia (tabela + linha do tempo)	Validação
-3. Como executar
-Abra Pratica2_SmartEstufa.ipynb no Jupyter Notebook, JupyterLab, VS Code ou Google Colab.
-Execute todas as células em ordem (Kernel → Restart & Run All), pois cada fase depende das definições das células anteriores.
-Para testar um programa próprio, altere o código-fonte EstufaScript na célula de compilação do exemplo e execute novamente as células seguintes.
-4. Tabela de símbolos
-Sensores (7 sensores, 4 tipos)
-Sensor	Tipo	Faixa / valores	Descrição
-umidade_solo	número	0 … 100 %	Umidade volumétrica do solo
-luminosidade	número	0 … 100000 lux	Iluminância sobre o dossel
-temperatura	número	-10 … 60 °C	Temperatura interna do ar
-nivel_reservatorio	número	0 … 100 %	Nível da caixa d'água de irrigação
-clima	texto	"ensolarado", "nublado", "chuvoso"	Condição do tempo
-chovendo	lógico	VERDADEIRO / FALSO	Pluviômetro
-relogio	horário	00:00 … 23:59 (0 … 1439 min)	Hora do dia
-Dispositivos (5 dispositivos, 4 tipos)
-Dispositivo	Tipo	Descrição
-irrigador	irrigador	Válvula de irrigação por gotejamento
-lampada	lampada_cultivo	Lâmpada de cultivo LED full-spectrum
-ventilador	ventilador	Ventilador de circulação
-exaustor	ventilador	Exaustor de ar quente
-janela_teto	janela	Janela zenital motorizada
-Ações (6 ações, 4 novas)
-Ação	Parâmetros	Tipos de dispositivo aceitos	Faixa do número	Nova?
-ligar	dispositivo	irrigador, lampada_cultivo, ventilador	—	não
-desligar	dispositivo	irrigador, lampada_cultivo, ventilador	—	não
-irrigar	dispositivo, número	irrigador	1 … 60 min	sim
-ajustar_luz	dispositivo, número	lampada_cultivo	0 … 100 %	sim
-abrir	dispositivo, número	janela	0 … 100 %	sim
-fechar	dispositivo	janela	—	sim
-5. Requisitos e fases do compilador
+```
+
+| Célula | Conteúdo | Fase / papel |
+|---|---|---|
+| 1 | Importações e configuração | Infraestrutura |
+| 2 | Tabela de símbolos da estufa (sensores, dispositivos, ações, faixas) | Semântica (dados) |
+| 3 | Lexer: tokens, padrão `HORARIO`, `horario_para_minutos`, `ErroLexico` | **Léxica** |
+| 4 | Demonstração do token de horário e dos erros léxicos | Demonstração |
+| 5 | Nós da AST (`Regra` com campo `senao`) | **Sintática** |
+| 6 | Parser descendente recursivo (`bloco()`, `ErroSintatico`) | **Sintática** |
+| 7 | Desenho da AST (SVG e texto, nó `SENAO` em laranja) | Sintática (visualização) |
+| 8 | Analisador semântico (`verificar_bloco`, avisos) | **Semântica** |
+| 9 | Otimizador (dupla negação, identidades aritméticas) | **Otimização** |
+| 10 | Gerador de bytecode (`condicao` / `entao` / `senao`) | **Geração de código** |
+| 11 | `Estufa`, `MaquinaVirtual` e `Central` (bordas de subida/descida) | **Execução** |
+| 12 | Compilação do programa de exemplo | Pipeline completo |
+| 13 | Relatório de otimizações e bytecode do exemplo | Demonstração |
+| 14 | Demonstração do `SENAO` na borda de descida | Demonstração |
+| 15 | Demonstrações de erros/avisos semânticos e otimizações | Demonstração |
+| 16 | Bateria de 18 testes automatizados | **Validação** |
+| 17 | Simulação de um dia (tabela + linha do tempo) | **Validação** |
+
+---
+
+## 3. Como executar
+
+1. Abra `Pratica2_SmartEstufa.ipynb` no Jupyter Notebook, JupyterLab, VS Code ou Google Colab.
+2. Execute **todas as células em ordem** (*Kernel → Restart & Run All*), pois cada fase depende das definições das células anteriores.
+3. Para testar um programa próprio, altere o código-fonte EstufaScript na célula de compilação do exemplo e execute novamente as células seguintes.
+
+---
+
+## 4. Tabela de símbolos
+
+### Sensores (7 sensores, 4 tipos)
+
+| Sensor | Tipo | Faixa / valores | Descrição |
+|---|---|---|---|
+| `umidade_solo` | número | 0 … 100 % | Umidade volumétrica do solo |
+| `luminosidade` | número | 0 … 100000 lux | Iluminância sobre o dossel |
+| `temperatura` | número | -10 … 60 °C | Temperatura interna do ar |
+| `nivel_reservatorio` | número | 0 … 100 % | Nível da caixa d'água de irrigação |
+| `clima` | texto | `"ensolarado"`, `"nublado"`, `"chuvoso"` | Condição do tempo |
+| `chovendo` | lógico | `VERDADEIRO` / `FALSO` | Pluviômetro |
+| `relogio` | horário | `00:00` … `23:59` (0 … 1439 min) | Hora do dia |
+
+### Dispositivos (5 dispositivos, 4 tipos)
+
+| Dispositivo | Tipo | Descrição |
+|---|---|---|
+| `irrigador` | irrigador | Válvula de irrigação por gotejamento |
+| `lampada` | lampada_cultivo | Lâmpada de cultivo LED full-spectrum |
+| `ventilador` | ventilador | Ventilador de circulação |
+| `exaustor` | ventilador | Exaustor de ar quente |
+| `janela_teto` | janela | Janela zenital motorizada |
+
+### Ações (6 ações, 4 novas)
+
+| Ação | Parâmetros | Tipos de dispositivo aceitos | Faixa do número | Nova? |
+|---|---|---|---|---|
+| `ligar` | dispositivo | irrigador, lampada_cultivo, ventilador | — | não |
+| `desligar` | dispositivo | irrigador, lampada_cultivo, ventilador | — | não |
+| `irrigar` | dispositivo, número | irrigador | 1 … 60 min | **sim** |
+| `ajustar_luz` | dispositivo, número | lampada_cultivo | 0 … 100 % | **sim** |
+| `abrir` | dispositivo, número | janela | 0 … 100 % | **sim** |
+| `fechar` | dispositivo | janela | — | **sim** |
+
+---
+
+## 5. Requisitos e fases do compilador
 
 Resumo:
 
-Requisito	O que mudou	Fase	Células
-RF1	Literal de horário HH:MM e sensor relogio	Léxica	3, 4
-RF2	Bloco SENAO (gramática, AST, bytecode, runtime)	Sintática (+ geração e execução)	5, 6, 7, 10, 11, 14
-RF3	Tabela de símbolos da estufa, verificações e 2 avisos	Semântica	2, 8, 15
-RF4	Dupla negação e identidades aritméticas	Otimização	9, 13, 15
-RF5	Bytecode em 3 blocos, ações novas, VM e Central	Geração de código e execução	10, 11
-RF6	18 testes e simulação de um dia	Validação	16, 17
-RF1 — Literal de horário · Fase léxica (Célula 3)
-Novo padrão HORARIO (\d+:\d+) colocado antes de NUMERO na lista de tokens, para que 18:30 seja reconhecido como um único token (e não 18, :, 30).
-A função horario_para_minutos exige o formato HH:MM, valida hora 00..23 e minuto 00..59 e converte para minutos desde a meia-noite (18:30 → 1110). 25:00, 18:75 e 7:30 geram ErroLexico.
-Novo sensor relogio do tipo horario na tabela de símbolos. A semântica só permite comparar horário com horário.
-A Célula 4 demonstra o token único e os erros.
-RF2 — Bloco SENAO · Fase sintática (Células 5, 6 e 7) + geração e runtime
-Gramática:
+| Requisito | O que mudou | Fase | Células |
+|---|---|---|---|
+| RF1 | Literal de horário `HH:MM` e sensor `relogio` | Léxica | 3, 4 |
+| RF2 | Bloco `SENAO` (gramática, AST, bytecode, runtime) | Sintática (+ geração e execução) | 5, 6, 7, 10, 11, 14 |
+| RF3 | Tabela de símbolos da estufa, verificações e 2 avisos | Semântica | 2, 8, 15 |
+| RF4 | Dupla negação e identidades aritméticas | Otimização | 9, 13, 15 |
+| RF5 | Bytecode em 3 blocos, ações novas, VM e Central | Geração de código e execução | 10, 11 |
+| RF6 | 18 testes e simulação de um dia | Validação | 16, 17 |
+
+### RF1 — Literal de horário · **Fase léxica** (Célula 3)
+* Novo padrão `HORARIO` (`\d+:\d+`) colocado **antes** de `NUMERO` na lista de tokens, para que `18:30` seja reconhecido como um único token (e não `18`, `:`, `30`).
+* A função `horario_para_minutos` exige o formato `HH:MM`, valida hora `00..23` e minuto `00..59` e converte para minutos desde a meia-noite (`18:30 → 1110`). `25:00`, `18:75` e `7:30` geram `ErroLexico`.
+* Novo sensor `relogio` do tipo `horario` na tabela de símbolos. A semântica só permite comparar horário com horário.
+* A Célula 4 demonstra o token único e os erros.
+
+### RF2 — Bloco `SENAO` · **Fase sintática** (Células 5, 6 e 7) + geração e runtime
+* Gramática:
+  ```
   regra → QUANDO expr ENTAO acoes [SENAO acoes] FIM
   acoes → acao+
-O nó Regra ganhou o campo senao. O método bloco() do parser lança ErroSintatico se o bloco estiver vazio (SENAO FIM → "bloco SENAO vazio — esperada ao menos uma ação").
-O desenho da AST (SVG e texto) mostra o nó SENAO em laranja como terceiro filho da regra; o bytecode tem a coluna SENAO.
-As ações do SENAO são executadas na borda de descida (Célula 11, classe Central; demonstração na Célula 14).
-RF3 — Tabela de símbolos e novas verificações · Fase semântica (Células 2 e 8)
-Tabela da estufa com tipos, faixas dos sensores numéricos, valores permitidos do sensor de texto e faixas das ações com número.
-verificar_bloco é chamado para o ENTAO e para o SENAO, com as mesmas verificações: ação existente, dispositivo existente, tipo do dispositivo aceito, quantidade de argumentos e faixa do número.
-Condição: sensor declarado, tipos compatíveis, operador válido para o tipo (texto/lógico só com == e !=), literal dentro da faixa do sensor.
-Aviso 1: ação com os mesmos argumentos repetida dentro do mesmo bloco de uma regra.
-Aviso 2: duas regras com exatamente a mesma condição (comparação pela forma canônica gerada por fmt).
-Demonstrações na Célula 15.
-RF4 — Duas técnicas novas · Fase de otimização (Célula 9)
-Eliminação de dupla negação: NAO NAO x → x.
-Identidades aritméticas: x + 0, 0 + x, x - 0, x * 1, 1 * x, x / 1 → x e x * 0 → 0.
-O otimizador percorre a árvore em pós-ordem; cada transformação é registrada no relatório com regra, técnica, antes e depois (Células 13 e 15).
-RF5 — Bytecode e runtime · Geração de código (Célula 10) e execução (Célula 11)
-Cada regra compilada é um dicionário com três blocos: condicao, entao e senao.
-Literais de horário viram PUSH_CONST <minutos> (com comentário ; horário HH:MM).
-Ações: CALL <acao> <dispositivo> <nargs>; com número, o argumento é empilhado antes com PUSH_CONST.
-Classe Estufa com o estado de todos os dispositivos e a execução das ações novas (irrigar, ajustar_luz, abrir, fechar), incluindo o consumo de água.
-MaquinaVirtual (pilha) avalia a condição e executa os blocos; Central guarda o último valor de cada condição e executa ENTAO na subida (falso → verdadeiro) e SENAO na descida (verdadeiro → falso).
-RF6 — Testes e simulação · Validação (Células 16 e 17)
-Bateria com 18 casos, todos ✅. Cada caso confere a fase do erro e um trecho da mensagem:
-Categoria	Casos	Destaques
-Programas corretos	5	—
-Erros léxicos	4	25:00, 18:75
-Erros sintáticos	4	SENAO vazio
-Erros semânticos	5	erro dentro do SENAO
-Simulação de um dia com 13 eventos, 5 disparos de ENTAO e 4 de SENAO, exibida em tabela e numa linha do tempo dos dispositivos.
-6. Exemplo de programa e bytecode gerado
-Programa-fonte
+  ```
+* O nó `Regra` ganhou o campo `senao`. O método `bloco()` do parser lança `ErroSintatico` se o bloco estiver vazio (`SENAO FIM` → *"bloco SENAO vazio — esperada ao menos uma ação"*).
+* O desenho da AST (SVG e texto) mostra o nó `SENAO` em laranja como terceiro filho da regra; o bytecode tem a coluna `SENAO`.
+* As ações do `SENAO` são executadas na **borda de descida** (Célula 11, classe `Central`; demonstração na Célula 14).
+
+### RF3 — Tabela de símbolos e novas verificações · **Fase semântica** (Células 2 e 8)
+* Tabela da estufa com tipos, faixas dos sensores numéricos, valores permitidos do sensor de texto e faixas das ações com número.
+* `verificar_bloco` é chamado para o `ENTAO` **e** para o `SENAO`, com as mesmas verificações: ação existente, dispositivo existente, tipo do dispositivo aceito, quantidade de argumentos e faixa do número.
+* Condição: sensor declarado, tipos compatíveis, operador válido para o tipo (texto/lógico só com `==` e `!=`), literal dentro da faixa do sensor.
+* **Aviso 1:** ação com os mesmos argumentos repetida dentro do mesmo bloco de uma regra.
+* **Aviso 2:** duas regras com exatamente a mesma condição (comparação pela forma canônica gerada por `fmt`).
+* Demonstrações na Célula 15.
+
+### RF4 — Duas técnicas novas · **Fase de otimização** (Célula 9)
+* **Eliminação de dupla negação:** `NAO NAO x → x`.
+* **Identidades aritméticas:** `x + 0`, `0 + x`, `x - 0`, `x * 1`, `1 * x`, `x / 1 → x` e `x * 0 → 0`.
+* O otimizador percorre a árvore em pós-ordem; cada transformação é registrada no relatório com regra, técnica, antes e depois (Células 13 e 15).
+
+### RF5 — Bytecode e runtime · **Geração de código** (Célula 10) e **execução** (Célula 11)
+* Cada regra compilada é um dicionário com três blocos: `condicao`, `entao` e `senao`.
+* Literais de horário viram `PUSH_CONST <minutos>` (com comentário `; horário HH:MM`).
+* Ações: `CALL <acao> <dispositivo> <nargs>`; com número, o argumento é empilhado antes com `PUSH_CONST`.
+* Classe `Estufa` com o estado de todos os dispositivos e a execução das ações novas (`irrigar`, `ajustar_luz`, `abrir`, `fechar`), incluindo o consumo de água.
+* `MaquinaVirtual` (pilha) avalia a condição e executa os blocos; `Central` guarda o último valor de cada condição e executa `ENTAO` na subida (falso → verdadeiro) e `SENAO` na descida (verdadeiro → falso).
+
+### RF6 — Testes e simulação · **Validação** (Células 16 e 17)
+* Bateria com **18 casos**, todos ✅. Cada caso confere a fase do erro e um trecho da mensagem:
+
+  | Categoria | Casos | Destaques |
+  |---|---|---|
+  | Programas corretos | 5 | — |
+  | Erros léxicos | 4 | `25:00`, `18:75` |
+  | Erros sintáticos | 4 | `SENAO` vazio |
+  | Erros semânticos | 5 | erro dentro do `SENAO` |
+
+* Simulação de um dia com **13 eventos**, 5 disparos de `ENTAO` e 4 de `SENAO`, exibida em tabela e numa linha do tempo dos dispositivos.
+
+---
+
+## 6. Exemplo de programa e bytecode gerado
+
+### Programa-fonte
+
+```
 # EstufaScript — controle de uma estufa de hortaliças
 # R1: irrigação por umidade do solo, inibida quando chove
 QUANDO umidade_solo < 30 E NAO chovendo ENTAO
@@ -160,15 +215,21 @@ FIM
 QUANDO nivel_reservatorio * 1 < 15 + 0 ENTAO
     desligar(irrigador)
 FIM
+```
 
-O programa exercita todos os requisitos: literal de horário (R2), SENAO (R1–R3), regra sem SENAO (R4), os quatro tipos de sensor, as quatro ações novas e as duas técnicas de otimização (R3 e R4).
+O programa exercita todos os requisitos: literal de horário (R2), `SENAO` (R1–R3), regra sem `SENAO` (R4), os quatro tipos de sensor, as quatro ações novas e as duas técnicas de otimização (R3 e R4).
 
-Otimizações aplicadas
-Regra	Técnica	Antes	Depois
-3	Dupla negação	NAO NAO (clima == "ensolarado" E luminosidade > 60000)	(clima == "ensolarado" E luminosidade > 60000)
-4	Identidade aritmética	nivel_reservatorio * 1	nivel_reservatorio
-4	Identidade aritmética	15 + 0	15
-Bytecode gerado
+### Otimizações aplicadas
+
+| Regra | Técnica | Antes | Depois |
+|---|---|---|---|
+| 3 | Dupla negação | `NAO NAO (clima == "ensolarado" E luminosidade > 60000)` | `(clima == "ensolarado" E luminosidade > 60000)` |
+| 4 | Identidade aritmética | `nivel_reservatorio * 1` | `nivel_reservatorio` |
+| 4 | Identidade aritmética | `15 + 0` | `15` |
+
+### Bytecode gerado
+
+```
 ── REGRA #1: QUANDO (umidade_solo < 30) E NAO chovendo
   [CONDICAO]
     000  LOAD_SENSOR umidade_solo
@@ -228,16 +289,22 @@ Bytecode gerado
     000  CALL        desligar irrigador 1
   [SENAO]
     (vazio)
-7. Bônus implementados
+```
+
+---
+
+## 7. Bônus implementados
 
 Funcionalidades além do mínimo pedido nos requisitos:
 
-Visualização da AST em SVG e em texto, com o nó SENAO destacado em laranja (Célula 7).
-Relatório de otimizações com regra, técnica, expressão antes e depois (Células 13 e 15).
-Modelo físico da estufa na classe Estufa, incluindo o consumo de água do reservatório durante a irrigação (Célula 11).
-Linha do tempo dos dispositivos na simulação de um dia, além da tabela de eventos (Célula 17).
-Validação de faixa dos literais na condição e dos argumentos numéricos das ações.
-Bateria de testes automatizada que confere não só se houve erro, mas a fase e um trecho da mensagem (Célula 16).
+* **Visualização da AST em SVG e em texto**, com o nó `SENAO` destacado em laranja (Célula 7).
+* **Relatório de otimizações** com regra, técnica, expressão antes e depois (Células 13 e 15).
+* **Modelo físico da estufa** na classe `Estufa`, incluindo o **consumo de água** do reservatório durante a irrigação (Célula 11).
+* **Linha do tempo dos dispositivos** na simulação de um dia, além da tabela de eventos (Célula 17).
+* **Validação de faixa** dos literais na condição e dos argumentos numéricos das ações.
+* **Bateria de testes automatizada** que confere não só se houve erro, mas a **fase** e um trecho da **mensagem** (Célula 16).
+
+---
 
 <img width="845" height="371" alt="image" src="https://github.com/user-attachments/assets/b0f1e750-3b3a-44cb-8f87-051c6295f2b7" />
 <img width="804" height="235" alt="image" src="https://github.com/user-attachments/assets/0549cfc8-c887-4112-ab17-e6eb844c3536" />
