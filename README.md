@@ -1,6 +1,6 @@
 # 🌱 EstufaScript — CasaScript para Estufas e Hortas Inteligentes
 
-**Prática 2 — Compiladores** · Notebook: [`Pratica2_SmartEstufa.ipynb`](Pratica2_SmartEstufa.ipynb)
+**Prática 2 — Compiladores** · Notebook: [`Pratica2_SmartEstufa.py`](Pratica2_SmartEstufa.py)
 
 | Integrante | RA |
 |---|---|
