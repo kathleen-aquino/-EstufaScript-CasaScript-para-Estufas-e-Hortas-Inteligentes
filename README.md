@@ -238,7 +238,6 @@ Modelo físico da estufa na classe Estufa, incluindo o consumo de água do reser
 Linha do tempo dos dispositivos na simulação de um dia, além da tabela de eventos (Célula 17).
 Validação de faixa dos literais na condição e dos argumentos numéricos das ações.
 Bateria de testes automatizada que confere não só se houve erro, mas a fase e um trecho da mensagem (Célula 16).
-Evidências 
 
 <img width="845" height="371" alt="image" src="https://github.com/user-attachments/assets/b0f1e750-3b3a-44cb-8f87-051c6295f2b7" />
 <img width="804" height="235" alt="image" src="https://github.com/user-attachments/assets/0549cfc8-c887-4112-ab17-e6eb844c3536" />
